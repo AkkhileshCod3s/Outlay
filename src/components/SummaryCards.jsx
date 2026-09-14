@@ -1,15 +1,22 @@
 import './SummaryCards.css'
 
 export default function SummaryCards({ expenses, currency, monthlyBudget = 0 }) {
-  const todayStr = new Date().toISOString().split('T')[0]
   const now = new Date()
+  const currentYear = String(now.getFullYear())
+  const currentMonth = String(now.getMonth() + 1).padStart(2, '0')
+  const currentDate = String(now.getDate()).padStart(2, '0')
+  const todayStr = `${currentYear}-${currentMonth}-${currentDate}`
+  const currentMonthPrefix = `${currentYear}-${currentMonth}`
 
-  const startOfWeek = new Date(now)
-  startOfWeek.setDate(now.getDate() - now.getDay())
-  startOfWeek.setHours(0, 0, 0, 0)
-
-  const currentYear = now.getFullYear()
-  const currentMonth = now.getMonth()
+  const currentDayOfWeek = now.getDay()
+  const weekDateStrings = []
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - currentDayOfWeek + i)
+    const y = String(d.getFullYear())
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const dt = String(d.getDate()).padStart(2, '0')
+    weekDateStrings.push(`${y}-${m}-${dt}`)
+  }
 
   let todaySpend = 0
   let weekSpend = 0
@@ -17,17 +24,16 @@ export default function SummaryCards({ expenses, currency, monthlyBudget = 0 }) 
 
   expenses.forEach((item) => {
     const itemAmount = Number(item.amount) || 0
-    const itemDate = new Date(item.date)
 
     if (item.date === todayStr) {
       todaySpend += itemAmount
     }
 
-    if (itemDate >= startOfWeek && itemDate <= now) {
+    if (weekDateStrings.includes(item.date)) {
       weekSpend += itemAmount
     }
 
-    if (itemDate.getFullYear() === currentYear && itemDate.getMonth() === currentMonth) {
+    if (item.date && item.date.startsWith(currentMonthPrefix)) {
       monthSpend += itemAmount
     }
   })

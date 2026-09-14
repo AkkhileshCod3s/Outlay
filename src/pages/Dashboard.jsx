@@ -63,49 +63,53 @@ export default function Dashboard() {
 
   const getWeekDayStats = () => {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-    const totals = { Sun: 0, Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0 }
-
     const now = new Date()
-    const startOfWeek = new Date(now)
-    startOfWeek.setDate(now.getDate() - now.getDay())
-    startOfWeek.setHours(0, 0, 0, 0)
+    const dayOfWeek = now.getDay()
 
-    expenses.forEach((item) => {
-      const d = new Date(item.date)
-      if (d >= startOfWeek && d <= now) {
-        const dayLabel = days[d.getDay()]
-        totals[dayLabel] += Number(item.amount) || 0
+    return days.map((day, i) => {
+      const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek + i)
+      const y = String(targetDate.getFullYear())
+      const m = String(targetDate.getMonth() + 1).padStart(2, '0')
+      const dt = String(targetDate.getDate()).padStart(2, '0')
+      const dateStr = `${y}-${m}-${dt}`
+
+      const dayTotal = expenses
+        .filter((item) => item.date === dateStr)
+        .reduce((sum, item) => sum + (Number(item.amount) || 0), 0)
+
+      const percentage = monthlyBudget > 0
+        ? Math.min(100, Math.max(0, (dayTotal / monthlyBudget) * 100))
+        : 0
+
+      return {
+        label: day,
+        amount: dayTotal,
+        percentage
       }
     })
-
-    const maxVal = Math.max(...Object.values(totals), 1)
-
-    return days.map((day) => ({
-      label: day,
-      amount: totals[day],
-      percentage: Math.round((totals[day] / maxVal) * 100)
-    }))
   }
 
   const getMonthStats = () => {
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    const currentYear = new Date().getFullYear()
-    const totals = new Array(12).fill(0)
+    const currentYear = String(new Date().getFullYear())
 
-    expenses.forEach((item) => {
-      const d = new Date(item.date)
-      if (d.getFullYear() === currentYear) {
-        totals[d.getMonth()] += Number(item.amount) || 0
+    return monthNames.map((m, idx) => {
+      const monthPrefix = `${currentYear}-${String(idx + 1).padStart(2, '0')}`
+
+      const monthTotal = expenses
+        .filter((item) => item.date && item.date.startsWith(monthPrefix))
+        .reduce((sum, item) => sum + (Number(item.amount) || 0), 0)
+
+      const percentage = monthlyBudget > 0
+        ? Math.min(100, Math.max(0, (monthTotal / monthlyBudget) * 100))
+        : 0
+
+      return {
+        label: m,
+        amount: monthTotal,
+        percentage
       }
     })
-
-    const maxVal = Math.max(...totals, 1)
-
-    return monthNames.map((m, idx) => ({
-      label: m,
-      amount: totals[idx],
-      percentage: Math.round((totals[idx] / maxVal) * 100)
-    }))
   }
 
   const weekDayStats = getWeekDayStats()
@@ -251,7 +255,7 @@ export default function Dashboard() {
                         <div className="bar-track">
                           <div 
                             className="bar-fill" 
-                            style={{ width: `${Math.max(item.percentage, item.amount > 0 ? 6 : 0)}%` }}
+                            style={{ width: `${item.percentage}%` }}
                           ></div>
                         </div>
                         <span className="bar-value">
@@ -268,7 +272,7 @@ export default function Dashboard() {
                         <div className="bar-track">
                           <div 
                             className="bar-fill" 
-                            style={{ width: `${Math.max(item.percentage, item.amount > 0 ? 6 : 0)}%` }}
+                            style={{ width: `${item.percentage}%` }}
                           ></div>
                         </div>
                         <span className="bar-value">

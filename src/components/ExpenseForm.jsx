@@ -2,15 +2,31 @@ import { useState } from 'react'
 import './ExpenseForm.css'
 
 export default function ExpenseForm({ onAddExpense, currency, onCurrencyChange }) {
+  const getTodayDateString = () => {
+    const d = new Date()
+    const y = String(d.getFullYear())
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const dt = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${dt}`
+  }
+
+  const todayDateStr = getTodayDateString()
+
   const [title, setTitle] = useState('')
   const [amount, setAmount] = useState('')
   const [category, setCategory] = useState('Food')
-  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0])
+  const [date, setDate] = useState(todayDateStr)
   const [error, setError] = useState('')
 
   const handleSubmit = (e) => {
     e.preventDefault()
     setError('')
+
+    const currentToday = getTodayDateString()
+    if (date > currentToday) {
+      alert("You cannot add an expense for a future date.")
+      return
+    }
 
     const parsedAmount = parseFloat(amount)
     if (!title.trim()) {
@@ -41,7 +57,7 @@ export default function ExpenseForm({ onAddExpense, currency, onCurrencyChange }
     setTitle('')
     setAmount('')
     setCategory('Food')
-    setDate(new Date().toISOString().split('T')[0])
+    setDate(getTodayDateString())
   }
 
   return (
@@ -122,6 +138,7 @@ export default function ExpenseForm({ onAddExpense, currency, onCurrencyChange }
               id="expenseDate"
               type="date"
               className="field-input"
+              max={todayDateStr}
               value={date}
               onChange={(e) => setDate(e.target.value)}
             />

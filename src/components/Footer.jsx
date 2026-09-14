@@ -27,7 +27,7 @@ export default function Footer({ hideContact = false }) {
             <a href="/#features" className="footer-link">Features</a>
             <a href="/#how-it-works" className="footer-link">How It Works</a>
             <a href="/#faq" className="footer-link">FAQ</a>
-            {/* {!hideContact && <a href="/#contact" className="footer-link">Contact</a>} */}
+            {!hideContact && <a href="/#contact" className="footer-link">Contact</a>}
           </div>
         </div>
 
