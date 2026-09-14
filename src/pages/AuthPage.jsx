@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
+// import Footer from '../components/Footer'
 import './AuthPage.css'
 
 export default function AuthPage() {
@@ -143,7 +143,7 @@ export default function AuthPage() {
         </div>
       </main>
 
-      <Footer hideContact={true} />
+      {/* <Footer hideContact={true} /> */}
     </div>
   )
 }
