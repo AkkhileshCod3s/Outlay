@@ -225,7 +225,7 @@ export default function Dashboard() {
               <div className="analytics-header">
                 <div>
                   <h3 className="analytics-title">Spending Analytics</h3>
-                  <p className="analytics-subtitle">CSS-based breakdown without heavy libraries</p>
+                  <p className="analytics-subtitle">View your analytics below.</p>
                 </div>
 
                 <div className="analytics-toggle">
