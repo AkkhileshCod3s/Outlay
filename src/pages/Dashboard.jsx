@@ -21,7 +21,7 @@ export default function Dashboard() {
 
   const [monthlyBudget, setMonthlyBudget] = useState(() => {
     const saved = localStorage.getItem('outlay_target_budget')
-    return saved !== null ? Number(saved) : 0
+    return saved !== null && saved !== '' ? Number(saved) : 0
   })
 
   const [expenses, setExpenses] = useState(() => {
@@ -65,6 +65,7 @@ export default function Dashboard() {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     const now = new Date()
     const dayOfWeek = now.getDay()
+    const budgetValue = Number(monthlyBudget) || 0
 
     return days.map((day, i) => {
       const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek + i)
@@ -77,8 +78,8 @@ export default function Dashboard() {
         .filter((item) => item.date === dateStr)
         .reduce((sum, item) => sum + (Number(item.amount) || 0), 0)
 
-      const percentage = monthlyBudget > 0
-        ? Math.min(100, Math.max(0, (dayTotal / monthlyBudget) * 100))
+      const percentage = budgetValue > 0
+        ? Math.min(100, Math.max(0, (dayTotal / budgetValue) * 100))
         : 0
 
       return {
@@ -92,6 +93,7 @@ export default function Dashboard() {
   const getMonthStats = () => {
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     const currentYear = String(new Date().getFullYear())
+    const budgetValue = Number(monthlyBudget) || 0
 
     return monthNames.map((m, idx) => {
       const monthPrefix = `${currentYear}-${String(idx + 1).padStart(2, '0')}`
@@ -100,8 +102,8 @@ export default function Dashboard() {
         .filter((item) => item.date && item.date.startsWith(monthPrefix))
         .reduce((sum, item) => sum + (Number(item.amount) || 0), 0)
 
-      const percentage = monthlyBudget > 0
-        ? Math.min(100, Math.max(0, (monthTotal / monthlyBudget) * 100))
+      const percentage = budgetValue > 0
+        ? Math.min(100, Math.max(0, (monthTotal / budgetValue) * 100))
         : 0
 
       return {
@@ -200,7 +202,15 @@ export default function Dashboard() {
               min="0"
               className="budget-input"
               value={monthlyBudget}
-              onChange={(e) => setMonthlyBudget(Math.max(0, Number(e.target.value) || 0))}
+              onChange={(e) => {
+                const val = e.target.value
+                setMonthlyBudget(val === '' ? '' : Math.max(0, Number(val)))
+              }}
+              onBlur={(e) => {
+                if (e.target.value === '') {
+                  setMonthlyBudget(0)
+                }
+              }}
             />
           </div>
         </section>
@@ -208,7 +218,7 @@ export default function Dashboard() {
         <SummaryCards 
           expenses={expenses} 
           currency={currency} 
-          monthlyBudget={monthlyBudget} 
+          monthlyBudget={Number(monthlyBudget) || 0} 
         />
 
         <div className="dashboard-grid">
